@@ -1,4 +1,26 @@
 {
-  "version": 1,
-  "status": "pass"
+  "version": 3,
+  "status": "pass",
+  "tests": [
+    {
+      "name": "test_empty_strands",
+      "test_code": "TEST_ASSERT_EQUAL_INT(0, distance(\"\", \"\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_single_letter_identical_strands",
+      "test_code": "TEST_ASSERT_EQUAL_INT(0, distance(\"A\", \"A\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_long_different_strands",
+      "test_code": "TEST_ASSERT_EQUAL_INT(9, distance(\"GGACGGATTCTG\", \"AGGACGGATTCT\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_disallow_first_strand_longer",
+      "test_code": "TEST_ASSERT_EQUAL_INT(UNEQUAL_LENGTHS, distance(\"AATG\", \"AAA\"));",
+      "status": "pass"
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": 1,
-  "status": "fail",
-  "message": "TODO: replace with correct output"
+  "version": 3,
+  "status": "error",
+  "message": "ld.lld: error: undefined symbol: leap_year\n>>> referenced by empty_file_test.c:9\n>>>               empty_file_test.o:(test_year_not_divisible_by_4_in_common_year)\n>>> referenced by empty_file_test.c:12\n>>>               empty_file_test.o:(test_year_divisible_by_4_not_divisible_by_100_in_leap_year)\n>>> referenced by empty_file_test.c:12\n>>>               empty_file_test.o:(test_year_divisible_by_100_not_divisible_by_400_in_common_year)\n>>> referenced 1 more times\nmake: *** [Makefile:21: tests] Error 1"
 }

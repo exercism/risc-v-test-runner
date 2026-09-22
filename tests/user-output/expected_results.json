@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "status": "pass",
+  "tests": [
+    {
+      "name": "test_zero_steps_for_one",
+      "test_code": "TEST_ASSERT_EQUAL_INT(0, steps(1));",
+      "status": "pass"
+    },
+    {
+      "name": "test_divide_if_even",
+      "test_code": "TEST_ASSERT_EQUAL_INT(4, steps(16));",
+      "status": "pass",
+      "output": "16\n8\n4\n2"
+    },
+    {
+      "name": "test_even_and_odd_steps",
+      "test_code": "TEST_ASSERT_EQUAL_INT(9, steps(12));",
+      "status": "pass",
+      "output": "12\n6\n3\n10\n5\n16\n8\n4\n2"
+    },
+    {
+      "name": "test_zero_is_an_error",
+      "test_code": "TEST_ASSERT_EQUAL_INT(INVALID_NUMBER, steps(0));",
+      "status": "pass"
+    }
+  ]
+}

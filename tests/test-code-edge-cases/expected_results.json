@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "status": "pass",
+  "tests": [
+    {
+      "name": "test_paired_square_brackets",
+      "test_code": "TEST_ASSERT_TRUE(is_paired(\"[]\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_empty_string",
+      "test_code": "TEST_ASSERT_TRUE(is_paired(\"\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_unpaired_brackets",
+      "test_code": "TEST_ASSERT_FALSE(is_paired(\"[[\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_paired_with_whitespace",
+      "test_code": "TEST_ASSERT_TRUE(is_paired(\"{ }\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_unopened_closing_brackets",
+      "test_code": "// A closing brace with nothing to close: }\nTEST_ASSERT_FALSE(is_paired(\"{]\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_brackets_in_quotes_still_count",
+      "test_code": "/* The quotes around the braces\n   are just more characters: {\"{}\"} */\nTEST_ASSERT_TRUE(is_paired(\"\\\"{}\\\"\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_brace_characters",
+      "test_code": "char value[3];\nvalue[0] = '{';\nvalue[1] = '}';\nvalue[2] = '\\0';\nTEST_ASSERT_TRUE(is_paired(value));",
+      "status": "pass"
+    },
+    {
+      "name": "test_nested_blocks_keep_their_indentation",
+      "test_code": "const char *pairs[] = {\"{}\", \"[]\", \"()\"};\nfor (size_t i = 0; i < 3; i++) {\n    if (i != 1) {\n        TEST_ASSERT_TRUE(is_paired(pairs[i]));\n    }\n}",
+      "status": "pass"
+    },
+    {
+      "name": "test_math_expression",
+      "test_code": "TEST_ASSERT_TRUE(is_paired(\"(((185 + 223.85) * 15) - 543)/2\"));",
+      "status": "pass"
+    },
+    {
+      "name": "test_nothing_to_check",
+      "status": "pass"
+    }
+  ]
+}

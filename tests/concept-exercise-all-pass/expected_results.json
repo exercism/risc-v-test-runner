@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "status": "pass",
+  "tests": [
+    {
+      "name": "test_expected",
+      "test_code": "TEST_ASSERT_EQUAL_INT(40, expected_minutes_in_oven());",
+      "status": "pass",
+      "task_id": 1
+    },
+    {
+      "name": "test_remaining",
+      "test_code": "TEST_ASSERT_EQUAL_INT_MESSAGE(15, remaining_minutes_in_oven(25), \"The function was called with argument: 25.\");",
+      "status": "pass",
+      "task_id": 2
+    },
+    {
+      "name": "test_preparation_one",
+      "test_code": "TEST_ASSERT_EQUAL_INT_MESSAGE(2, preparation_time_in_minutes(1), \"The function was called with argument: 1.\");",
+      "status": "pass",
+      "task_id": 3
+    },
+    {
+      "name": "test_preparation_many",
+      "test_code": "TEST_ASSERT_EQUAL_INT_MESSAGE(8, preparation_time_in_minutes(4), \"The function was called with argument: 4.\");",
+      "status": "pass",
+      "task_id": 3
+    },
+    {
+      "name": "test_elapsed_one",
+      "test_code": "TEST_ASSERT_EQUAL_INT_MESSAGE(32, elapsed_time_in_minutes(1, 30), \"The function was called with arguments: 1, 30.\");",
+      "status": "pass",
+      "task_id": 4
+    },
+    {
+      "name": "test_elapsed_many",
+      "test_code": "TEST_ASSERT_EQUAL_INT_MESSAGE(16, elapsed_time_in_minutes(4, 8), \"The function was called with arguments: 4, 8.\");",
+      "status": "pass",
+      "task_id": 4
+    }
+  ]
+}
