@@ -79,7 +79,7 @@ die() {
 capped() {
     local file="$1"
     head -c "${MAX_MESSAGE_BYTES}" "${file}"
-    if (( $(wc -c < "${file}") > MAX_MESSAGE_BYTES )); then
+    if (( $(stat -c %s "${file}") > MAX_MESSAGE_BYTES )); then
         printf '\n[output truncated]'
     fi
 }
@@ -128,24 +128,9 @@ stage_solution() {
     cd "${build_dir}" || die "cannot enter the build directory"
 }
 
-# The test file is normally named after the slug. Fall back to any *_test.c
-# so a hand-assembled solution still works. Prints the name, or nothing.
-find_test_file() {
-    local candidate
-    if [[ -f "${snake_slug}_test.c" ]]; then
-        echo "${snake_slug}_test.c"
-        return
-    fi
-    for candidate in *_test.c; do
-        [[ -f "${candidate}" ]] || continue
-        echo "${candidate}"
-        return
-    done
-}
-
 # Compile with the exercise's own Makefile. Prints nothing; returns 0 when
-# the test program exists afterwards. The compiler output is left in the
-# work directory for the error report.
+# make succeeded and the test program exists afterwards. The compiler output
+# is left in the work directory for the error report.
 compile_tests() {
     local build_dir="${PWD}"
     # Drop whatever a local build left behind; the Makefile's wildcards would
@@ -155,13 +140,18 @@ compile_tests() {
     local status=$?
     # coreutils timeout exits 124; busybox reports the signal it sent.
     if (( status == 124 || status > 128 )); then
-        printf '\ncompilation timed out after %s seconds\n' "${COMPILE_TIMEOUT}" \
+        printf '\ncompilation timed out after %d seconds\n' "${COMPILE_TIMEOUT}" \
             >> "${work_dir}/compile"
+    fi
+    # make -s says nothing of its own, so a failure that printed nothing
+    # would otherwise go unexplained.
+    if (( status != 0 )) && ! grep -q '[^[:space:]]' "${work_dir}/compile"; then
+        printf 'make exited with status %d\n' "${status}" >> "${work_dir}/compile"
     fi
     # Diagnostics name files relative to the build directory already; strip
     # the directory from anything that does not.
     sed -i "s#${build_dir}/##g" "${work_dir}/compile"
-    [[ -x ./tests ]]
+    (( status == 0 )) && [[ -x ./tests ]]
 }
 
 # Run the test program under qemu, capturing everything it and qemu print.
@@ -180,10 +170,10 @@ run_tests() {
     status=$?
     : > "${work_dir}/stopped"
     if (( status == 124 || (status > 128 && SECONDS - started >= RUN_TIMEOUT) )); then
-        printf 'The tests timed out after %s seconds' "${RUN_TIMEOUT}" > "${work_dir}/stopped"
+        printf 'The tests timed out after %d seconds' "${RUN_TIMEOUT}" > "${work_dir}/stopped"
     elif (( status > 128 )); then
         signal=$(( status - 128 ))
-        printf 'The test program was killed by signal %s (SIG%s)' \
+        printf 'The test program was killed by signal %d (SIG%s)' \
             "${signal}" "$(kill -l "${signal}" 2>/dev/null)" > "${work_dir}/stopped"
     fi
 }
@@ -242,11 +232,10 @@ main() {
     prepare_zig_cache
     stage_solution
 
-    local test_file
-    test_file=$(find_test_file)
-    if [[ -z "${test_file}" ]]; then
-        printf 'no test file found (expected %s_test.c)\n' "${snake_slug}" \
-            > "${work_dir}/message"
+    # The track names every test file after the exercise.
+    local test_file="${snake_slug}_test.c"
+    if [[ ! -f "${test_file}" ]]; then
+        printf 'no test file found (expected %s)\n' "${test_file}" > "${work_dir}/message"
         finish_with error "${work_dir}/message"
         return 0
     fi
