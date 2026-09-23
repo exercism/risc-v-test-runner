@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "status": "fail",
+  "tests": [
+    {
+      "name": "test_first_prime",
+      "test_code": "TEST_ASSERT_EQUAL_UINT(2, prime(1));",
+      "status": "pass"
+    },
+    {
+      "name": "test_second_prime",
+      "test_code": "TEST_ASSERT_EQUAL_UINT(3, prime(2));",
+      "status": "error",
+      "message": "The tests timed out after 10 seconds while running this test; later tests did not run."
+    }
+  ]
+}

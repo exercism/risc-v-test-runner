@@ -1,5 +1,33 @@
 {
-  "version": 1,
+  "version": 3,
   "status": "fail",
-  "message": "TODO: replace with correct output"
+  "tests": [
+    {
+      "name": "test_the_sound_for_1_is_1",
+      "test_code": "char buffer[BUFFER_SIZE];\n\nconvert(buffer, 1);\nTEST_ASSERT_EQUAL_STRING(\"1\", buffer);",
+      "status": "pass"
+    },
+    {
+      "name": "test_the_sound_for_3_is_pling",
+      "test_code": "char buffer[BUFFER_SIZE];\n\nconvert(buffer, 3);\nTEST_ASSERT_EQUAL_STRING(\"Pling\", buffer);",
+      "status": "pass"
+    },
+    {
+      "name": "test_the_sound_for_5_is_plang",
+      "test_code": "char buffer[BUFFER_SIZE];\n\nconvert(buffer, 5);\nTEST_ASSERT_EQUAL_STRING(\"Plang\", buffer);",
+      "status": "pass"
+    },
+    {
+      "name": "test_the_sound_for_7_is_plong",
+      "test_code": "char buffer[BUFFER_SIZE];\n\nconvert(buffer, 7);\nTEST_ASSERT_EQUAL_STRING(\"Plong\", buffer);",
+      "status": "fail",
+      "message": "Expected 'Plong' Was '7'"
+    },
+    {
+      "name": "test_the_sound_for_105_is_plingplangplong_as_it_has_factors_3_5_and_7",
+      "test_code": "char buffer[BUFFER_SIZE];\n\nconvert(buffer, 105);\nTEST_ASSERT_EQUAL_STRING(\"PlingPlangPlong\", buffer);",
+      "status": "fail",
+      "message": "Expected 'PlingPlangPlong' Was 'PlingPlang'"
+    }
+  ]
 }

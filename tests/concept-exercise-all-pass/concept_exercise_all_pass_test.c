@@ -1,0 +1,56 @@
+#include "vendor/unity.h"
+
+extern int expected_minutes_in_oven(void);
+extern int remaining_minutes_in_oven(int actual_minutes_in_oven);
+extern int preparation_time_in_minutes(int number_of_layers);
+extern int elapsed_time_in_minutes(int number_of_layers, int actual_minutes_in_oven);
+
+void setUp(void) {
+}
+
+void tearDown(void) {
+}
+
+// TASK: 1
+void test_expected(void) {
+    TEST_ASSERT_EQUAL_INT(40, expected_minutes_in_oven());
+}
+
+// TASK: 2
+void test_remaining(void) {
+    TEST_IGNORE();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(15, remaining_minutes_in_oven(25), "The function was called with argument: 25.");
+}
+
+// TASK: 3
+void test_preparation_one(void) {
+    TEST_IGNORE();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, preparation_time_in_minutes(1), "The function was called with argument: 1.");
+}
+
+void test_preparation_many(void) {
+    TEST_IGNORE();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(8, preparation_time_in_minutes(4), "The function was called with argument: 4.");
+}
+
+// TASK: 4
+void test_elapsed_one(void) {
+    TEST_IGNORE();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(32, elapsed_time_in_minutes(1, 30), "The function was called with arguments: 1, 30.");
+}
+
+void test_elapsed_many(void) {
+    TEST_IGNORE();
+    TEST_ASSERT_EQUAL_INT_MESSAGE(16, elapsed_time_in_minutes(4, 8), "The function was called with arguments: 4, 8.");
+}
+
+int main(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_expected);
+    RUN_TEST(test_remaining);
+    RUN_TEST(test_preparation_one);
+    RUN_TEST(test_preparation_many);
+    RUN_TEST(test_elapsed_one);
+    RUN_TEST(test_elapsed_many);
+    return UNITY_END();
+}

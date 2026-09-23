@@ -1,0 +1,43 @@
+{
+  "version": 3,
+  "status": "fail",
+  "tests": [
+    {
+      "name": "test_higher_bits_0b1010_0100_1100_0101",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(164, extract_higher_bits(42181), \"The function was called with argument: 0b1010_0100_1100_0101.\");",
+      "status": "pass",
+      "task_id": 1
+    },
+    {
+      "name": "test_higher_bits_0b0000_0000_1111_1111",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, extract_higher_bits(255), \"The function was called with argument: 0b0000_0000_1111_1111.\");",
+      "status": "pass",
+      "task_id": 1
+    },
+    {
+      "name": "test_lower_bits_0b1010_0100_1100_0101",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(197, extract_lower_bits(42181), \"The function was called with argument: 0b1010_0100_1100_0101.\");",
+      "status": "pass",
+      "task_id": 2
+    },
+    {
+      "name": "test_lower_bits_0b1111_1111_0000_0000",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, extract_lower_bits(65280), \"The function was called with argument: 0b1111_1111_0000_0000.\");",
+      "status": "pass",
+      "task_id": 2
+    },
+    {
+      "name": "test_redundant_bits_0b1010_0100_1100_0101",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(132, extract_redundant_bits(42181), \"The function was called with argument: 0b1010_0100_1100_0101.\");",
+      "status": "fail",
+      "message": "Expected 132 Was 229. The function was called with argument: 0b1010_0100_1100_0101.",
+      "task_id": 3
+    },
+    {
+      "name": "test_redundant_bits_0b0001_1100_0001_1100",
+      "test_code": "TEST_ASSERT_EQUAL_UINT8_MESSAGE(28, extract_redundant_bits(7196), \"The function was called with argument: 0b0001_1100_0001_1100.\");",
+      "status": "pass",
+      "task_id": 3
+    }
+  ]
+}

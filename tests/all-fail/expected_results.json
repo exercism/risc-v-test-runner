@@ -1,5 +1,24 @@
 {
-  "version": 1,
+  "version": 3,
   "status": "fail",
-  "message": "TODO: replace with correct output"
+  "tests": [
+    {
+      "name": "test_a_word",
+      "test_code": "char str[] = \"robot\";\nreverse(str);\nTEST_ASSERT_EQUAL_STRING(\"tobor\", str);",
+      "status": "fail",
+      "message": "Expected 'tobor' Was 'robot'"
+    },
+    {
+      "name": "test_a_capitalized_word",
+      "test_code": "char str[] = \"Ramen\";\nreverse(str);\nTEST_ASSERT_EQUAL_STRING(\"nemaR\", str);",
+      "status": "fail",
+      "message": "Expected 'nemaR' Was 'Ramen'"
+    },
+    {
+      "name": "test_a_sentence_with_punctuation",
+      "test_code": "char str[] = \"I'm hungry!\";\nreverse(str);\nTEST_ASSERT_EQUAL_STRING(\"!yrgnuh m'I\", str);",
+      "status": "fail",
+      "message": "Expected '!yrgnuh m'I' Was 'I'm hungry!'"
+    }
+  ]
 }

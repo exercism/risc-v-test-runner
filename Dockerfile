@@ -1,18 +1,42 @@
-# Prefer a pinned hash that matches what is used in other test runners.
-#
-# alpine:3.18.12@sha256:de0eb0b3f2a47ba1eb89389859a9bd88b28e82f5826b6969ad604979713c2d4f
-# alpine:3.20.10@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
-# alpine:3.22.4@sha256:310c62b5e7ca5b08167e4384c68db0fd2905dd9c7493756d356e893909057601
-# alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
-# debian:bookworm-slim@sha256:f9c6a2fd2ddbc23e336b6257a5245e31f996953ef06cd13a59fa0a1df2d5c252
-# ubuntu:22.04@sha256:962f6cadeae0ea6284001009daa4cc9a8c37e75d1f5191cf0eb83fe565b63dd7
-# ubuntu:24.04@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b
-# ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
-FROM alpine:3.18.12@sha256:de0eb0b3f2a47ba1eb89389859a9bd88b28e82f5826b6969ad604979713c2d4f
+# Alpine 3.24 ships everything the runner needs as packages: zig provides the
+# whole RISC-V cross toolchain (clang, integrated assembler, lld, and a musl
+# libc built on demand), qemu-riscv32 runs the result, and bash, gawk and jq
+# turn the test output into results.json.
+FROM alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
 
-# install packages required to run the tests
-RUN apk add --no-cache jq coreutils
+# We can't reliably pin the package versions on Alpine, so we ignore the linter warning.
+# See https://gitlab.alpinelinux.org/alpine/abuild/-/issues/9996
+# hadolint ignore=DL3018
+#
+# zig ships libc headers and sources for every platform it can target. Only
+# Linux and musl are reachable from here, so the rest is dropped in the same
+# layer, along with the C++ and sanitizer runtimes a C test program never
+# links.
+RUN apk add --no-cache bash gawk jq make qemu-riscv32 zig \
+    && cd /usr/lib/zig \
+    && find libc/include -mindepth 1 -maxdepth 1 \
+        ! -name 'any-linux-any' ! -name 'generic-musl' \
+        ! -name 'riscv-linux-any' ! -name 'riscv32-linux-musl' \
+        -exec rm -rf {} + \
+    && rm -rf libc/darwin libc/freebsd libc/glibc libc/mingw libc/netbsd \
+        libc/openbsd libc/wasi libcxx libcxxabi libtsan docs build-web init
+
+# zig builds musl and compiler_rt for the target on first use and keeps them in
+# its global cache. That takes far longer than a solution may run, so the cache
+# is filled here, with the target and flags the exercises' Makefile uses, and
+# only read afterwards. bin/run.sh copies it to /tmp when it is not writable.
+ENV ZIG_GLOBAL_CACHE_DIR=/opt/zig-cache
+
+WORKDIR /tmp/warm
+RUN printf 'int main(void) { return 0; }\n' > warm.c \
+    && printf '\t.text\n\t.globl warm\nwarm:\n\tret\n' > warm.S \
+    && zig cc -target riscv32-linux-musl -std=c23 -g -c -o warm_c.o warm.c \
+    && zig cc -target riscv32-linux-musl -c -o warm_s.o warm.S \
+    && zig cc -target riscv32-linux-musl -static -o warm warm_c.o warm_s.o \
+    && qemu-riscv32 ./warm \
+    && cd / \
+    && rm -rf /tmp/warm /tmp/zig-cache "${ZIG_GLOBAL_CACHE_DIR}/tmp"
 
 WORKDIR /opt/test-runner
-COPY . .
+COPY bin/run.sh bin/test-metadata.awk bin/unity-to-json.awk bin/
 ENTRYPOINT ["/opt/test-runner/bin/run.sh"]
