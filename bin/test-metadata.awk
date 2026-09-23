@@ -41,12 +41,12 @@ function json_string(s,        out, pos, c, code) {
     for (pos = 1; pos <= length(s); pos++) {
         c = substr(s, pos, 1)
         code = BYTE[c]
-        if      (c == "\"" || c == "\\") out = out "\\" c
-        else if (c == "\n")              out = out "\\n"
-        else if (c == "\r")              out = out "\\r"
-        else if (c == "\t")              out = out "\\t"
-        else if (code < 32)              out = out sprintf("\\u%04x", code)
-        else                             out = out c
+        if      (c == "\"" || c == "\\")    out = out "\\" c
+        else if (c == "\n")                 out = out "\\n"
+        else if (c == "\r")                 out = out "\\r"
+        else if (c == "\t")                 out = out "\\t"
+        else if (code < 32 || code == 127)  out = out sprintf("\\u%04x", code)
+        else                                out = out c
     }
     return out "\""
 }

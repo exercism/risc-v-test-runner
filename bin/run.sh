@@ -37,10 +37,6 @@ export LC_ALL=C
 # print loop hits a limit rather than filling /tmp.
 : "${MAX_OUTPUT_BYTES:=8388608}"
 
-runner_dir=$(dirname "$(realpath "$0")")
-test_metadata="${runner_dir}/test-metadata.awk"
-unity_to_json="${runner_dir}/unity-to-json.awk"
-
 usage() {
     echo "usage: $0 exercise-slug path/to/solution/folder/ path/to/output/directory/" >&2
     exit 1
@@ -57,21 +53,6 @@ mkdir -p "${output_dir}"
 
 results_file="${output_dir}/results.json"
 snake_slug="${slug//-/_}"
-
-# Assigned before use so the trap can always expand it.
-work_dir=""
-trap 'rm -rf "${work_dir}"' EXIT
-
-# A fault in the runner itself is still reported through results.json when
-# possible: an empty output directory tells the platform nothing.
-die() {
-    echo "$*" >&2
-    if [[ -n "${work_dir}" ]]; then
-        printf '%s\n' "$*" > "${work_dir}/died"
-        finish_with error "${work_dir}/died"
-    fi
-    exit 1
-}
 
 # capped <file>: copy at most MAX_MESSAGE_BYTES of a capture to stdout,
 # noting the cut. Callers redirect this into a file, which is what jq's
@@ -98,6 +79,27 @@ finish_with() {
         > "${results_file}"
     echo "${slug}: done"
 }
+
+# A fault in the runner itself is still reported through results.json when
+# possible: an empty output directory tells the platform nothing. The work
+# directory is empty only when creating it is what failed.
+die() {
+    echo "$*" >&2
+    if [[ -n "${work_dir:-}" ]]; then
+        printf '%s\n' "$*" > "${work_dir}/died"
+        finish_with error "${work_dir}/died"
+    fi
+    exit 1
+}
+
+work_dir=$(mktemp -d) || die "cannot create a work directory"
+trap 'rm -rf "${work_dir}"' EXIT
+
+runner_dir=$(dirname "$(realpath "$0")")
+test_metadata="${runner_dir}/test-metadata.awk"
+unity_to_json="${runner_dir}/unity-to-json.awk"
+[[ -f "${test_metadata}" ]] || die "missing ${test_metadata}"
+[[ -f "${unity_to_json}" ]] || die "missing ${unity_to_json}"
 
 # zig keeps the musl libc and compiler_rt it builds for the target in its
 # global cache, which the Dockerfile fills at build time. zig writes a
@@ -223,10 +225,6 @@ write_results() {
 }
 
 main() {
-    [[ -f "${test_metadata}" ]] || die "missing ${test_metadata}"
-    [[ -f "${unity_to_json}" ]] || die "missing ${unity_to_json}"
-    work_dir=$(mktemp -d) || die "cannot create a work directory"
-
     echo "${slug}: testing..."
 
     prepare_zig_cache
