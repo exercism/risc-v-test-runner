@@ -27,6 +27,13 @@ RUN apk add --no-cache bash gawk jq make qemu-riscv32 zig \
 # only read afterwards. bin/run.sh copies it to /tmp when it is not writable.
 ENV ZIG_GLOBAL_CACHE_DIR=/opt/zig-cache
 
+# The CPU qemu-riscv32 emulates: RV32 with the vector extension (VLEN 128).
+# Instructions may leave "agnostic" vector elements (past vl under ta, masked off under ma) unchanged or fill them with ones, and hardware does either.
+# qemu leaves them unchanged unless told otherwise, so a solution that wrongly relies on that would pass here and fail on real chips.
+# Filling them with ones makes it fail here too.
+# Non-vector code is unaffected, and the bit-manipulation extensions (Zbb and friends) stay enabled.
+ENV QEMU_CPU=rv32,v=true,vlen=128,vext_spec=v1.0,rvv_ta_all_1s=true,rvv_ma_all_1s=true
+
 WORKDIR /tmp/warm
 RUN printf 'int main(void) { return 0; }\n' > warm.c \
     && printf '\t.text\n\t.globl warm\nwarm:\n\tret\n' > warm.S \
